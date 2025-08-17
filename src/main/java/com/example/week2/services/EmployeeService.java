@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,9 +36,10 @@ public class EmployeeService {
 
     }
 
-    public EmployeeDto getEmployeeById(Long id) {
-        EmployeeEntity employeeEntity = employeeRepository.getReferenceById(id);
-        return modelMapper.map(employeeEntity, EmployeeDto.class);
+    public Optional<EmployeeDto> getEmployeeById(Long id) {
+        return employeeRepository.findById(id)
+                .map(employeeEntity -> modelMapper.map(employeeEntity, EmployeeDto.class));
+
     }
 
     public EmployeeDto updatedEmployee(EmployeeDto updatedEmployee) {
@@ -64,5 +66,11 @@ public class EmployeeService {
             ReflectionUtils.setField(fieldToBeUpdated,employeeEntity, value);
         });
         return modelMapper.map(employeeRepository.save(employeeEntity), EmployeeDto.class);
+    }
+
+    public boolean deleteEmployeeById(Long id) {
+        if(!isEmployeeExistById(id)) return false;
+        employeeRepository.deleteById(id);
+        return true;
     }
 }
