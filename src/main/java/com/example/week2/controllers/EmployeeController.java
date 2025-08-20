@@ -1,6 +1,8 @@
 package com.example.week2.controllers;
 import com.example.week2.dto.EmployeeDto;
+import com.example.week2.exceptios.ResourceNotFoundException;
 import com.example.week2.services.EmployeeService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,18 +28,20 @@ public class EmployeeController {
     @GetMapping
     public ResponseEntity<EmployeeDto> getEmployeeById(@RequestParam Long id){
         Optional<EmployeeDto> employee = employeeServices.getEmployeeById(id);
-        return employee.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return employee
+                .map(ResponseEntity::ok)
+                .orElseThrow(()->new ResourceNotFoundException("Employee not found with id: "+id));
     }
 
     @PostMapping
-    public ResponseEntity<EmployeeDto> addEmployee(@RequestBody EmployeeDto inputEmployee){
+    public ResponseEntity<EmployeeDto> addEmployee(@RequestBody @Valid EmployeeDto inputEmployee){
         EmployeeDto savedEmplyee = employeeServices.addEmployee(inputEmployee);
        return new ResponseEntity<>(savedEmplyee, HttpStatus.CREATED);
 
     }
 
     @PutMapping
-    public ResponseEntity<EmployeeDto> updateEmployee(@RequestBody EmployeeDto updatedEmployee){
+    public ResponseEntity<EmployeeDto> updateEmployee(@RequestBody @Valid EmployeeDto updatedEmployee){
         return ResponseEntity.ok(employeeServices.updatedEmployee(updatedEmployee));
     }
 
